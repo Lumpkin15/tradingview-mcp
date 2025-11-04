@@ -7,8 +7,9 @@ from typing_extensions import TypedDict
 from mcp.server.fastmcp import FastMCP
 
 # Import bollinger band screener modules
-from tradingview_mcp.core.services.indicators import compute_metrics
+from tradingview_mcp.core.services.indicators import compute_metrics, compute_atr_normalized, compute_volume_trend
 from tradingview_mcp.core.services.coinlist import load_symbols
+from tradingview_mcp.core.services.sentiment import compute_sentiment_score, compute_multi_asset_sentiment
 from tradingview_mcp.core.utils.validators import sanitize_timeframe, sanitize_exchange, EXCHANGE_SCREENER, ALLOWED_TIMEFRAMES
 
 try:
@@ -429,7 +430,18 @@ def coin_analysis(
             low = indicators.get("low", 0)
             open_price = indicators.get("open", 0)
             close_price = indicators.get("close", 0)
-            
+
+            # Compute comprehensive sentiment score
+            sentiment = compute_sentiment_score(indicators)
+
+            # ATR analysis
+            atr = indicators.get("ATR", 0)
+            atr_normalized = compute_atr_normalized(atr, close_price) if atr and close_price else None
+
+            # Volume trend analysis
+            volume_sma = indicators.get("Volume.sma20", volume)
+            volume_trend = compute_volume_trend(volume, volume_sma) if volume and volume_sma else None
+
             return {
                 "symbol": full_symbol,
                 "exchange": exchange,
@@ -451,8 +463,8 @@ def coin_analysis(
                     "bb_upper": round(indicators.get("BB.upper", 0), 6),
                     "bb_middle": round(indicators.get("SMA20", 0), 6),
                     "bb_lower": round(indicators.get("BB.lower", 0), 6),
-                    "position": "Above Upper" if close_price > indicators.get("BB.upper", 0) else 
-                               "Below Lower" if close_price < indicators.get("BB.lower", 0) else 
+                    "position": "Above Upper" if close_price > indicators.get("BB.upper", 0) else
+                               "Below Lower" if close_price < indicators.get("BB.lower", 0) else
                                "Within Bands"
                 },
                 "technical_indicators": {
@@ -468,13 +480,23 @@ def coin_analysis(
                     "adx": round(adx, 2),
                     "trend_strength": "Strong" if adx > 25 else "Weak",
                     "stoch_k": round(stoch_k, 2),
-                    "stoch_d": round(stoch_d, 2)
+                    "stoch_d": round(stoch_d, 2),
+                    "atr": round(atr, 6) if atr else None,
+                    "atr_percentage": round(atr_normalized, 2) if atr_normalized else None
+                },
+                "sentiment_analysis": {
+                    "overall_score": sentiment['overall_score'],
+                    "sentiment_category": sentiment['sentiment_category'],
+                    "emoji": sentiment['emoji'],
+                    "recommendation": sentiment['recommendation'],
+                    "summary": f"{sentiment['emoji']} {sentiment['sentiment_category']} ({sentiment['overall_score']}/100)"
                 },
                 "market_sentiment": {
                     "overall_rating": metrics['rating'],
                     "buy_sell_signal": metrics['signal'],
                     "volatility": "High" if metrics['bbw'] > 0.05 else "Medium" if metrics['bbw'] > 0.02 else "Low",
-                    "momentum": "Bullish" if metrics['change'] > 0 else "Bearish"
+                    "momentum": "Bullish" if metrics['change'] > 0 else "Bearish",
+                    "volume_trend": volume_trend['volume_trend'] if volume_trend else "Unknown"
                 }
             }
             
@@ -1270,6 +1292,213 @@ def smart_volume_scanner(exchange: str = "KUCOIN", min_volume_ratio: float = 2.0
 		filtered_results.append(coin)
 	
 	return filtered_results[:limit]
+
+
+@mcp.tool()
+def sentiment_analysis(
+    symbol: str,
+    exchange: str = "KUCOIN",
+    timeframe: str = "15m"
+) -> dict:
+    """Advanced sentiment analysis for a specific asset using comprehensive technical indicators.
+
+    Analyzes multiple factors to provide a 0-100 sentiment score:
+    - Technical signals (RSI, MACD, Stochastic): 40% weight
+    - Trend strength (EMA alignment, ADX): 30% weight
+    - Volume confirmation: 20% weight
+    - Volatility assessment (ATR, BBW): 10% weight
+
+    Args:
+        symbol: Asset symbol (e.g., "BTCUSDT", "ETHUSDT")
+        exchange: Exchange name (BINANCE, KUCOIN, etc.)
+        timeframe: Time interval (5m, 15m, 1h, 4h, 1D, 1W, 1M)
+
+    Returns:
+        Comprehensive sentiment analysis with score, category, and detailed breakdown
+    """
+    try:
+        exchange = sanitize_exchange(exchange, "KUCOIN")
+        timeframe = sanitize_timeframe(timeframe, "15m")
+
+        # Format symbol with exchange prefix
+        if ":" not in symbol:
+            full_symbol = f"{exchange.upper()}:{symbol.upper()}"
+        else:
+            full_symbol = symbol.upper()
+
+        screener = EXCHANGE_SCREENER.get(exchange, "crypto")
+
+        try:
+            analysis = get_multiple_analysis(
+                screener=screener,
+                interval=timeframe,
+                symbols=[full_symbol]
+            )
+
+            if full_symbol not in analysis or analysis[full_symbol] is None:
+                return {
+                    "error": f"No data found for {symbol} on {exchange}",
+                    "symbol": symbol,
+                    "exchange": exchange,
+                    "timeframe": timeframe
+                }
+
+            data = analysis[full_symbol]
+            indicators = data.indicators
+
+            # Compute sentiment score
+            sentiment = compute_sentiment_score(indicators)
+
+            # Get basic metrics for context
+            metrics = compute_metrics(indicators)
+
+            # Add ATR analysis
+            atr = indicators.get("ATR", 0)
+            close = indicators.get("close", 0)
+            atr_normalized = compute_atr_normalized(atr, close) if atr and close else None
+
+            # Add volume trend
+            volume = indicators.get("volume", 0)
+            volume_sma = indicators.get("Volume.sma20", volume)
+            volume_trend = compute_volume_trend(volume, volume_sma) if volume and volume_sma else None
+
+            return {
+                "symbol": full_symbol,
+                "exchange": exchange,
+                "timeframe": timeframe,
+                "timestamp": "real-time",
+                "sentiment": sentiment,
+                "current_price": metrics['price'] if metrics else None,
+                "price_change": metrics['change'] if metrics else None,
+                "additional_metrics": {
+                    "atr_percentage": atr_normalized,
+                    "volume_analysis": volume_trend
+                },
+                "summary": f"{sentiment['emoji']} {sentiment['sentiment_category']} - Score: {sentiment['overall_score']}/100",
+                "recommendation": sentiment['recommendation']
+            }
+
+        except Exception as e:
+            return {
+                "error": f"Sentiment analysis failed: {str(e)}",
+                "symbol": symbol,
+                "exchange": exchange,
+                "timeframe": timeframe
+            }
+
+    except Exception as e:
+        return {
+            "error": f"Sentiment analysis failed: {str(e)}",
+            "symbol": symbol,
+            "exchange": exchange,
+            "timeframe": timeframe
+        }
+
+
+@mcp.tool()
+def market_sentiment_overview(
+    exchange: str = "KUCOIN",
+    timeframe: str = "15m",
+    limit: int = 30
+) -> dict:
+    """Analyze overall market sentiment across multiple assets on an exchange.
+
+    Aggregates sentiment scores from top assets to determine market-wide sentiment.
+    Shows distribution of bullish/bearish assets and provides market direction insight.
+
+    Args:
+        exchange: Exchange name (BINANCE, KUCOIN, etc.)
+        timeframe: Time interval (5m, 15m, 1h, 4h, 1D, 1W, 1M)
+        limit: Number of assets to analyze (max 50)
+
+    Returns:
+        Market-wide sentiment analysis with distribution and top performers
+    """
+    try:
+        exchange = sanitize_exchange(exchange, "KUCOIN")
+        timeframe = sanitize_timeframe(timeframe, "15m")
+        limit = max(10, min(limit, 50))
+
+        # Load symbols
+        symbols = load_symbols(exchange)
+        if not symbols:
+            return {"error": f"No symbols found for exchange: {exchange}"}
+
+        # Limit symbols for performance
+        symbols = symbols[:limit * 2]
+
+        screener = EXCHANGE_SCREENER.get(exchange, "crypto")
+
+        try:
+            analysis = get_multiple_analysis(screener=screener, interval=timeframe, symbols=symbols)
+        except Exception as e:
+            return {"error": f"Analysis failed: {str(e)}"}
+
+        # Analyze sentiment for each asset
+        sentiment_results = []
+        for symbol, data in list(analysis.items())[:limit]:
+            if data is None:
+                continue
+
+            try:
+                indicators = data.indicators
+                sentiment = compute_sentiment_score(indicators)
+                metrics = compute_metrics(indicators)
+
+                if metrics:
+                    sentiment_results.append({
+                        "symbol": symbol,
+                        "sentiment": sentiment,
+                        "price": metrics['price'],
+                        "change": metrics['change']
+                    })
+            except Exception:
+                continue
+
+        if not sentiment_results:
+            return {"error": "No sentiment data could be computed"}
+
+        # Sort by sentiment score
+        sentiment_results.sort(key=lambda x: x["sentiment"]["overall_score"], reverse=True)
+
+        # Compute market-wide sentiment
+        market_sentiment = compute_multi_asset_sentiment(sentiment_results)
+
+        # Get top bullish and bearish assets
+        top_bullish = sentiment_results[:5]
+        top_bearish = sentiment_results[-5:][::-1]
+
+        return {
+            "exchange": exchange,
+            "timeframe": timeframe,
+            "timestamp": "real-time",
+            "market_sentiment": market_sentiment,
+            "top_bullish_assets": [
+                {
+                    "symbol": asset["symbol"],
+                    "score": asset["sentiment"]["overall_score"],
+                    "category": asset["sentiment"]["sentiment_category"],
+                    "price_change": asset["change"],
+                    "emoji": asset["sentiment"]["emoji"]
+                }
+                for asset in top_bullish
+            ],
+            "top_bearish_assets": [
+                {
+                    "symbol": asset["symbol"],
+                    "score": asset["sentiment"]["overall_score"],
+                    "category": asset["sentiment"]["sentiment_category"],
+                    "price_change": asset["change"],
+                    "emoji": asset["sentiment"]["emoji"]
+                }
+                for asset in top_bearish
+            ],
+            "total_assets_analyzed": len(sentiment_results),
+            "summary": f"{market_sentiment['emoji']} {market_sentiment['market_sentiment']} - Average Score: {market_sentiment['average_score']}/100"
+        }
+
+    except Exception as e:
+        return {"error": f"Market sentiment overview failed: {str(e)}"}
 
 
 if __name__ == "__main__":

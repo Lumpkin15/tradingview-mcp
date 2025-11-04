@@ -38,6 +38,31 @@ def compute_bb_rating_signal(close: float, bb_upper: float, bb_middle: float, bb
     return rating, signal
 
 
+def compute_atr_normalized(atr: float, close: float) -> Optional[float]:
+    """Compute ATR as percentage of price for better comparison across assets."""
+    if not close or close == 0:
+        return None
+    try:
+        return (atr / close) * 100
+    except (ZeroDivisionError, TypeError):
+        return None
+
+
+def compute_volume_trend(volume: float, volume_sma: float) -> Optional[Dict]:
+    """Analyze volume trend relative to average."""
+    if not volume_sma or volume_sma == 0:
+        return None
+    try:
+        volume_ratio = volume / volume_sma
+        trend = "High" if volume_ratio > 1.5 else "Above Average" if volume_ratio > 1.0 else "Below Average" if volume_ratio > 0.5 else "Low"
+        return {
+            "volume_ratio": round(volume_ratio, 2),
+            "volume_trend": trend
+        }
+    except (ZeroDivisionError, TypeError):
+        return None
+
+
 def compute_metrics(indicators: Dict) -> Optional[Dict]:
     try:
         open_price = indicators["open"]

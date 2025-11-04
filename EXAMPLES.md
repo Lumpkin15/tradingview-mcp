@@ -336,6 +336,191 @@ Found the data! Here's your Ethereum analysis...
 **Suggestion:** Reduce exposure in overbought positions
 ```
 
+## 🧠 Sentiment Analysis (NEW!)
+
+### Individual Asset Sentiment
+
+#### Comprehensive Sentiment Score
+```
+💬 You: "What's the sentiment score for Bitcoin?"
+
+🤖 Claude: [Uses: sentiment_analysis(symbol="BTCUSDT", exchange="KUCOIN", timeframe="4h")]
+
+🧠 Bitcoin Sentiment Analysis:
+
+**Overall Score: 87/100** 🔥
+**Category: Very Bullish**
+**Recommendation: Strong Buy Signal**
+
+📊 Component Breakdown:
+
+**Technical Signals (40% weight): 92/100**
+├─ RSI: 68.2 - Strong Bullish
+├─ MACD: Positive & Above Signal (Strong Bullish)
+└─ Stochastic: K=75, D=72 (Bullish)
+
+**Trend Strength (30% weight): 95/100**
+├─ EMA Alignment: Strong Uptrend (Price > EMA50 > EMA200)
+└─ ADX: 35.4 (Strong Trend)
+
+**Volume Confirmation (20% weight): 85/100**
+└─ Volume Ratio: 2.1x (High Volume - Strong Confirmation)
+
+**Volatility Assessment (10% weight): 65/100**
+├─ ATR: 2.3% (Moderate Volatility)
+└─ BBW: 0.035 (Normal Volatility)
+
+💡 Summary: Strong upward momentum with excellent confirmation across all metrics. High volume and strong trend strength support continued bullish movement.
+```
+
+#### Multi-Timeframe Sentiment Comparison
+```
+💬 You: "Compare Bitcoin sentiment on 1h vs 4h timeframes"
+
+🤖 Claude: [Uses sentiment_analysis multiple times]
+
+📈 Bitcoin Multi-Timeframe Sentiment:
+
+**1-Hour Timeframe:**
+- Score: 72/100 (Bullish) ✅
+- Trend: Moderate uptrend
+- Volume: Above average
+
+**4-Hour Timeframe:**
+- Score: 87/100 (Very Bullish) 🔥
+- Trend: Strong uptrend
+- Volume: High confirmation
+
+**Analysis:** Higher timeframe shows stronger bullish conviction. Short-term momentum aligns with longer-term trend. Consider 4h sentiment as more reliable for position sizing.
+```
+
+### Market-Wide Sentiment
+
+#### Overall Market Mood
+```
+💬 You: "What's the overall crypto market sentiment on KuCoin?"
+
+🤖 Claude: [Uses: market_sentiment_overview(exchange="KUCOIN", timeframe="15m", limit=30)]
+
+🌍 Crypto Market Sentiment Overview:
+
+**Market Sentiment: Bullish Market** 📈
+**Average Score: 64.5/100**
+**Assets Analyzed: 30**
+
+📊 Sentiment Distribution:
+- Very Bullish: 4 assets (13%)
+- Bullish: 12 assets (40%)
+- Slightly Bullish: 6 assets (20%)
+- Neutral: 5 assets (17%)
+- Slightly Bearish: 2 assets (7%)
+- Bearish: 1 asset (3%)
+- Very Bearish: 0 assets (0%)
+
+**Strongest Sentiment: Bullish** (40% of assets)
+
+📈 Top 5 Most Bullish Assets:
+1. KUCOIN:ACEUSDT - Score: 89/100 (Very Bullish) 🔥 | +8.2%
+2. KUCOIN:SOLUSDT - Score: 85/100 (Very Bullish) 🔥 | +5.7%
+3. KUCOIN:AVAXUSDT - Score: 78/100 (Bullish) ✅ | +4.3%
+4. KUCOIN:LINKUSDT - Score: 76/100 (Bullish) ✅ | +3.9%
+5. KUCOIN:MATICUSDT - Score: 72/100 (Bullish) ✅ | +3.1%
+
+📉 Top 5 Most Bearish Assets:
+1. KUCOIN:ADAUSDT - Score: 28/100 (Bearish) ❌ | -4.8%
+2. KUCOIN:DOTUSDT - Score: 32/100 (Slightly Bearish) ⬇️ | -3.2%
+3. KUCOIN:ATOMUSDT - Score: 38/100 (Slightly Bearish) ⬇️ | -2.1%
+4. KUCOIN:ALGOUSDT - Score: 41/100 (Neutral) ➡️ | -1.5%
+5. KUCOIN:FTMUSDT - Score: 43/100 (Neutral) ➡️ | -0.8%
+
+💡 Market Summary: Predominantly bullish market with strong momentum in 53% of assets. Limited bearish pressure suggests healthy market conditions favorable for long positions.
+```
+
+#### Sentiment-Based Trading Strategy
+```
+💬 You: "Help me find the best trading opportunities based on sentiment"
+
+🤖 Claude: [Combines sentiment_analysis with other tools]
+
+🎯 Sentiment-Based Trading Opportunities:
+
+**High-Confidence Bullish Plays:**
+
+1. **SOLUSDT** - Sentiment: 85/100 🔥
+   - All 4 components positive
+   - Volume confirmation: 2.3x average
+   - Strong trend strength (ADX: 32)
+   - Entry: Current price safe
+   - Risk: Low-Medium
+
+2. **AVAXUSDT** - Sentiment: 78/100 ✅
+   - Technical signals: 88/100
+   - Moderate volatility (safe)
+   - EMA alignment bullish
+   - Entry: Dip to SMA20
+   - Risk: Low
+
+**Recovery Opportunities (Oversold):**
+
+1. **ADAUSDT** - Sentiment: 28/100 ❌
+   - Currently bearish BUT:
+   - RSI: 25 (Oversold - potential bounce)
+   - Volume declining (selling exhaustion?)
+   - Near support levels
+   - Entry: Wait for sentiment > 45
+   - Risk: High (counter-trend)
+
+**Avoid:**
+- Assets with sentiment 30-45 (weak signals)
+- High sentiment (>85) with low volume (false breakout risk)
+
+💡 Strategy: Focus on 65-85 sentiment range with strong volume confirmation for best risk/reward.
+```
+
+### Sentiment + Technical Analysis
+
+#### Complete Market Intelligence
+```
+💬 You: "Give me a complete analysis of Ethereum with sentiment"
+
+🤖 Claude: [Uses: coin_analysis(symbol="ETHUSDT") - now includes sentiment]
+
+📊 Ethereum (ETHUSDT) Complete Analysis:
+
+**Price Data:**
+- Current: $2,845.67
+- 24h Change: +4.3% (+$117.23)
+- Volume: 145.2M USDT
+
+**Sentiment Analysis:** 🔥
+- Overall Score: 82/100 (Very Bullish)
+- Recommendation: Strong Buy Signal
+- Confidence: High (all components positive)
+
+**Bollinger Bands:**
+- Rating: +2 (BUY)
+- Position: Upper 50% of bands
+- BBW: 0.0298 (Moderate volatility)
+
+**Technical Indicators:**
+- RSI: 67.8 (Strong, not overbought)
+- MACD: Bullish crossover confirmed
+- EMA50 > EMA200: Uptrend intact
+- ADX: 28.5 (Moderate-strong trend)
+- ATR: 2.1% (Stable volatility)
+
+**Volume Analysis:**
+- Trend: High (1.8x average)
+- Confirmation: Strong
+
+**Market Sentiment:**
+- Overall: Bullish
+- Volume Trend: Above Average
+- Momentum: Positive
+
+💡 Verdict: Very bullish setup with strong sentiment backing. All timeframes align. Good entry opportunity with manageable risk.
+```
+
 ## 🎯 Pro Tips for Best Results
 
 ### Effective Prompting

@@ -12,10 +12,12 @@ https://github-production-user-asset-6210df.s3.amazonaws.com/67838093/478689497-
 ## ✨ Key Features
 
 - 🚀 **Real-time Market Screening**: Find top gainers, losers, and trending stocks/crypto
-- 📊 **Advanced Technical Analysis**: Bollinger Bands, RSI, MACD, and more indicators  
+- 📊 **Advanced Technical Analysis**: Bollinger Bands, RSI, MACD, ATR, and more indicators
 - 🎯 **Bollinger Band Intelligence**: Proprietary rating system (-3 to +3) for squeeze detection
 - 🕯️ **Pattern Recognition**: Detect consecutive bullish/bearish candle formations
-- 💎 **Multi-Market Support**: Crypto exchanges (KuCoin, Binance, Bybit) + Traditional markets (NASDAQ, BIST)
+- 🧠 **AI-Powered Sentiment Analysis**: Comprehensive 0-100 sentiment scoring with multi-factor analysis
+- 📈 **Market Sentiment Overview**: Aggregate sentiment across multiple assets for market-wide insights
+- 💎 **Multi-Market Support**: Crypto exchanges (KuCoin, Binance, Bybit) + Traditional markets (NASDAQ, NYSE, BIST)
 - ⏰ **Multi-Timeframe Analysis**: From 5-minute to monthly charts
 - 🔍 **Individual Asset Deep-Dive**: Comprehensive technical analysis for any symbol
 
@@ -115,12 +117,18 @@ uv sync
 | `bollinger_scan` | Find assets with tight Bollinger Bands | Coins ready for breakout |
 | `rating_filter` | Filter by Bollinger Band rating | Strong buy signals (rating +2) |
 
-### 🔍 Technical Analysis  
+### 🔍 Technical Analysis
 | Tool | Description | Example Usage |
 |------|-------------|---------------|
-| `coin_analysis` | Complete technical analysis | Analyze BTC with all indicators |
+| `coin_analysis` | Complete technical analysis with sentiment | Analyze BTC with all indicators |
 | `consecutive_candles_scan` | Find candlestick patterns | 3+ consecutive green candles |
 | `advanced_candle_pattern` | Multi-timeframe pattern analysis | Complex pattern detection |
+
+### 🧠 Sentiment Analysis (NEW!)
+| Tool | Description | Example Usage |
+|------|-------------|---------------|
+| `sentiment_analysis` | AI-powered sentiment scoring (0-100) | Get sentiment score for ETHUSDT |
+| `market_sentiment_overview` | Market-wide sentiment aggregation | Overall crypto market sentiment |
 
 ### 📋 Information
 | Tool | Description |
@@ -153,12 +161,22 @@ uv sync
 "Which assets have tight Bollinger Bands ready for breakout?"
 ```
 
+**Sentiment Analysis (NEW!):**
+```
+"What's the sentiment score for Bitcoin right now?"
+"Analyze ETHUSDT sentiment on the 4h timeframe"
+"Show me the overall market sentiment on KuCoin"
+"Which assets have the most bullish sentiment?"
+"What's the market mood across top 30 crypto assets?"
+```
+
 **Advanced Queries:**
 ```
-"Compare AAPL vs TSLA technical indicators"
+"Compare AAPL vs TSLA technical indicators with sentiment"
 "Find high-volume crypto with RSI below 30"
 "Show me NASDAQ stocks with strong momentum"
 "Find NYSE stocks with Bollinger Band squeeze"
+"Analyze market sentiment on Binance for 1h timeframe"
 ```
 
 ## 🎯 Understanding the Bollinger Band Rating System
@@ -201,13 +219,58 @@ Our proprietary rating system helps identify trading opportunities:
 ## 📊 Technical Indicators Included
 
 - **Bollinger Bands** (20, 2) - Volatility and squeeze detection
-- **RSI** (14) - Momentum oscillator  
+- **RSI** (14) - Momentum oscillator
 - **Moving Averages** - SMA20, EMA50, EMA200
 - **MACD** - Trend and momentum
 - **ADX** - Trend strength measurement
 - **Stochastic** - Overbought/oversold conditions
-- **Volume Analysis** - Market participation
+- **ATR (Average True Range)** - Volatility measurement (NEW!)
+- **Volume Analysis** - Market participation with trend detection
 - **Price Action** - OHLC data with percentage changes
+
+## 🧠 Understanding Sentiment Analysis
+
+Our proprietary sentiment scoring system analyzes multiple factors to provide a comprehensive 0-100 score:
+
+### Sentiment Score Components
+
+| Component | Weight | Factors Analyzed |
+|-----------|--------|------------------|
+| **Technical Signals** | 40% | RSI, MACD, Stochastic oscillators |
+| **Trend Strength** | 30% | EMA alignment, ADX strength |
+| **Volume Confirmation** | 20% | Volume ratio vs average |
+| **Volatility Assessment** | 10% | ATR percentage, BBW |
+
+### Sentiment Categories
+
+| Score Range | Category | Emoji | Recommendation |
+|-------------|----------|-------|----------------|
+| **80-100** | Very Bullish | 🔥 | Strong Buy Signal |
+| **65-79** | Bullish | ✅ | Buy Signal |
+| **55-64** | Slightly Bullish | ⬆️ | Weak Buy |
+| **45-54** | Neutral | ➡️ | Hold/Wait |
+| **35-44** | Slightly Bearish | ⬇️ | Weak Sell |
+| **20-34** | Bearish | ❌ | Sell Signal |
+| **0-19** | Very Bearish | 🔥 | Strong Sell Signal |
+
+**Example Output:**
+```
+🔥 Very Bullish - Score: 87/100
+Recommendation: Strong Buy Signal
+
+Component Breakdown:
+├─ Technical Signals: 92/100 (40% weight)
+│  ├─ RSI: 68 (Strong Bullish)
+│  ├─ MACD: Positive & Above Signal
+│  └─ Stochastic: 75 (Bullish)
+├─ Trend Strength: 95/100 (30% weight)
+│  ├─ EMA Alignment: Strong Uptrend
+│  └─ ADX: 35 (Strong Trend)
+├─ Volume Confirmation: 85/100 (20% weight)
+│  └─ Volume Ratio: 2.1x (High Volume)
+└─ Volatility: 65/100 (10% weight)
+   └─ ATR: 2.3% (Moderate Volatility)
+```
 
 ## 🚨 Troubleshooting
 
